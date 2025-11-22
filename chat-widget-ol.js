@@ -27,21 +27,6 @@
             animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        @media (max-width: 768px) {
-            .n8n-chat-widget .chat-container {
-                width: 100%;
-                height: 100%;
-                max-width: 100vw;
-                max-height: 100vh;
-                bottom: 0;
-                right: 0;
-                left: 0;
-                top: 0;
-                border-radius: 0;
-                z-index: 9999;
-            }
-        }
-
         @keyframes slideUp {
             from {
                 opacity: 0;
@@ -150,21 +135,11 @@
         .n8n-chat-widget .chat-message {
             padding: 12px 16px;
             border-radius: 20px;
-            max-width: 90%;
+            max-width: 85%;
             word-wrap: break-word;
             font-size: 14px;
-            line-height: 1.6;
+            line-height: 1.5;
             animation: messagePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            white-space: pre-wrap;
-            overflow-wrap: break-word;
-            word-break: break-word;
-        }
-
-        @media (max-width: 768px) {
-            .n8n-chat-widget .chat-message {
-                max-width: 85%;
-                font-size: 13px;
-            }
         }
 
         @keyframes messagePop {
@@ -215,13 +190,6 @@
             font-size: 14px;
             max-height: 80px;
             transition: all 0.2s;
-        }
-
-        @media (max-width: 768px) {
-            .n8n-chat-widget .chat-input textarea {
-                font-size: 16px;
-                padding: 10px 14px;
-            }
         }
 
         .n8n-chat-widget .chat-input textarea:focus {
@@ -281,24 +249,6 @@
             align-items: center;
             justify-content: center;
             animation: float 3s ease-in-out infinite;
-        }
-
-        @media (max-width: 768px) {
-            .n8n-chat-widget .chat-toggle {
-                bottom: 20px;
-                right: 20px;
-                width: 60px;
-                height: 60px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .n8n-chat-widget .chat-toggle {
-                bottom: 15px;
-                right: 15px;
-                width: 55px;
-                height: 55px;
-            }
         }
 
         @keyframes float {
@@ -366,9 +316,9 @@
             route: ''
         },
         branding: {
-            logo: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%23ffffff%22/%3E%3Ctext x=%2250%22 y=%2260%22 font-size=%2240%22 font-weight=%22bold%22 text-anchor=%22middle%22 fill=%22%236366f1%22%3ETA%3C/text%3E%3C/svg%3E',
-            name: 'TanT.AI',
-            welcomeText: 'Welcome to TanT.AI',
+            logo: 'https://image.similarpng.com/file/similarpng/very-thumbnail/2021/09/Olive-oil-logo-design-on-transparent-background-PNG.png',
+            name: 'Oliye',
+            welcomeText: 'مرحبًا 👋، كيف يمكنني مساعدتك؟',
             responseTimeText: 'We typically reply within minutes',
             poweredBy: {
                 text: 'Powered by TanT.AI',
@@ -376,11 +326,11 @@
             }
         },
         style: {
-            primaryColor: '#6366f1',
-            secondaryColor: '#8b5cf6',
+            primaryColor: '#5f720f',
+            secondaryColor: '#5f720f',
             position: 'right',
             backgroundColor: '#ffffff',
-            fontColor: '#1f2937'
+            fontColor: '#333333'
         }
     };
 
@@ -466,7 +416,7 @@
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    function sendMessage(message) {
+    async function sendMessage(message) {
         const messageData = {
             action: "sendMessage",
             sessionId: currentSessionId,
@@ -497,8 +447,7 @@
             
             const botMessageDiv = document.createElement('div');
             botMessageDiv.className = 'chat-message bot';
-            const responseText = Array.isArray(data) ? data[0].output : data.output;
-            botMessageDiv.textContent = responseText;
+            botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
             messagesContainer.appendChild(botMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         } catch (error) {
