@@ -27,6 +27,21 @@
             animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
+        @media (max-width: 768px) {
+            .n8n-chat-widget .chat-container {
+                width: 100%;
+                height: 100%;
+                max-width: 100vw;
+                max-height: 100vh;
+                bottom: 0;
+                right: 0;
+                left: 0;
+                top: 0;
+                border-radius: 0;
+                z-index: 9999;
+            }
+        }
+
         @keyframes slideUp {
             from {
                 opacity: 0;
@@ -135,13 +150,21 @@
         .n8n-chat-widget .chat-message {
             padding: 12px 16px;
             border-radius: 20px;
-            max-width: 85%;
+            max-width: 90%;
             word-wrap: break-word;
             font-size: 14px;
             line-height: 1.6;
             animation: messagePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             white-space: pre-wrap;
             overflow-wrap: break-word;
+            word-break: break-word;
+        }
+
+        @media (max-width: 768px) {
+            .n8n-chat-widget .chat-message {
+                max-width: 85%;
+                font-size: 13px;
+            }
         }
 
         @keyframes messagePop {
@@ -192,6 +215,13 @@
             font-size: 14px;
             max-height: 80px;
             transition: all 0.2s;
+        }
+
+        @media (max-width: 768px) {
+            .n8n-chat-widget .chat-input textarea {
+                font-size: 16px;
+                padding: 10px 14px;
+            }
         }
 
         .n8n-chat-widget .chat-input textarea:focus {
@@ -251,6 +281,24 @@
             align-items: center;
             justify-content: center;
             animation: float 3s ease-in-out infinite;
+        }
+
+        @media (max-width: 768px) {
+            .n8n-chat-widget .chat-toggle {
+                bottom: 20px;
+                right: 20px;
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .n8n-chat-widget .chat-toggle {
+                bottom: 15px;
+                right: 15px;
+                width: 55px;
+                height: 55px;
+            }
         }
 
         @keyframes float {
@@ -418,7 +466,7 @@
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    async function sendMessage(message) {
+    function sendMessage(message) {
         const messageData = {
             action: "sendMessage",
             sessionId: currentSessionId,
@@ -449,7 +497,8 @@
             
             const botMessageDiv = document.createElement('div');
             botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
+            const responseText = Array.isArray(data) ? data[0].output : data.output;
+            botMessageDiv.textContent = responseText;
             messagesContainer.appendChild(botMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         } catch (error) {
