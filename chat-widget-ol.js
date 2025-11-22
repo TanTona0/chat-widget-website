@@ -138,8 +138,10 @@
             max-width: 85%;
             word-wrap: break-word;
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.6;
             animation: messagePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
         }
 
         @keyframes messagePop {
@@ -316,9 +318,9 @@
             route: ''
         },
         branding: {
-            logo: 'https://image.similarpng.com/file/similarpng/very-thumbnail/2021/09/Olive-oil-logo-design-on-transparent-background-PNG.png',
-            name: 'Oliye',
-            welcomeText: 'مرحبًا 👋، كيف يمكنني مساعدتك؟',
+            logo: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%23ffffff%22/%3E%3Ctext x=%2250%22 y=%2260%22 font-size=%2240%22 font-weight=%22bold%22 text-anchor=%22middle%22 fill=%22%236366f1%22%3ETA%3C/text%3E%3C/svg%3E',
+            name: 'TanT.AI',
+            welcomeText: 'Welcome to TanT.AI',
             responseTimeText: 'We typically reply within minutes',
             poweredBy: {
                 text: 'Powered by TanT.AI',
@@ -326,11 +328,11 @@
             }
         },
         style: {
-            primaryColor: '#5f720f',
-            secondaryColor: '#5f720f',
+            primaryColor: '#6366f1',
+            secondaryColor: '#8b5cf6',
             position: 'right',
             backgroundColor: '#ffffff',
-            fontColor: '#333333'
+            fontColor: '#1f2937'
         }
     };
 
