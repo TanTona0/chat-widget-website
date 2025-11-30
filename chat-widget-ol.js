@@ -1,4 +1,4 @@
-// Enhanced Chat Widget Script - Fixed Output & Beautiful Design
+// Enhanced Chat Widget Script - Final Version
 (function() {
     // Create and inject styles
     const styles = `
@@ -587,23 +587,47 @@
             }
             
             const data = await response.json();
-            console.log('Response data:', data);
+            console.log('Full Response:', data);
+            console.log('Response Type:', typeof data);
+            console.log('Response Keys:', Object.keys(data));
             
             // Extract the response - handle different response formats
             let botResponse = '';
             
+            // First, check if it's a string that might be JSON
             if (typeof data === 'string') {
-                botResponse = data;
+                try {
+                    const parsed = JSON.parse(data);
+                    botResponse = parsed.output || parsed.response || parsed.chatinput || data;
+                } catch {
+                    botResponse = data;
+                }
+            }
+            // Check for direct properties
+            else if (data.output) {
+                botResponse = data.output;
             } else if (data.response) {
                 botResponse = data.response;
-            } else if (data.output) {
-                botResponse = data.output;
-            } else if (Array.isArray(data) && data.length > 0) {
-                botResponse = data[0].output || data[0].response || JSON.stringify(data[0]);
-            } else {
-                botResponse = JSON.stringify(data);
+            } else if (data.chatinput) {
+                botResponse = data.chatinput;
+            }
+            // Handle array responses
+            else if (Array.isArray(data) && data.length > 0) {
+                const firstItem = data[0];
+                botResponse = firstItem.output || firstItem.response || firstItem.chatinput || JSON.stringify(firstItem);
+            }
+            // Handle nested objects
+            else if (data.data) {
+                botResponse = data.data.output || data.data.response || data.data.chatinput || JSON.stringify(data.data);
+            }
+            // Last resort - stringify but try to make it readable
+            else {
+                // Try to find any text-like property
+                const textProps = Object.values(data).find(val => typeof val === 'string' && val.length > 0);
+                botResponse = textProps || JSON.stringify(data);
             }
             
+            console.log('Extracted Bot Response:', botResponse);
             addMessage(botResponse, false);
             
         } catch (error) {
