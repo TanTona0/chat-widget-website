@@ -48,7 +48,7 @@
         }
 
         .n8n-chat-widget .brand-header {
-            padding: 20px 24px;
+            padding: 20px 60px 20px 24px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -589,7 +589,9 @@
             const data = await response.json();
             console.log('Full Response:', data);
             console.log('Response Type:', typeof data);
-            console.log('Response Keys:', Object.keys(data));
+            if (typeof data === 'object' && data !== null) {
+                console.log('Response Keys:', Object.keys(data));
+            }
             
             // Extract the response - handle different response formats
             let botResponse = '';
@@ -598,33 +600,43 @@
             if (typeof data === 'string') {
                 try {
                     const parsed = JSON.parse(data);
-                    botResponse = parsed.output || parsed.response || parsed.chatinput || data;
+                    botResponse = parsed.output || parsed.response || parsed.text || parsed.message || data;
                 } catch {
                     botResponse = data;
                 }
             }
-            // Check for direct properties
+            // Check for direct properties (most common n8n responses)
             else if (data.output) {
                 botResponse = data.output;
             } else if (data.response) {
                 botResponse = data.response;
-            } else if (data.chatinput) {
-                botResponse = data.chatinput;
+            } else if (data.text) {
+                botResponse = data.text;
+            } else if (data.message) {
+                botResponse = data.message;
             }
             // Handle array responses
             else if (Array.isArray(data) && data.length > 0) {
                 const firstItem = data[0];
-                botResponse = firstItem.output || firstItem.response || firstItem.chatinput || JSON.stringify(firstItem);
+                botResponse = firstItem.output || firstItem.response || firstItem.text || firstItem.message || JSON.stringify(firstItem);
             }
             // Handle nested objects
             else if (data.data) {
-                botResponse = data.data.output || data.data.response || data.data.chatinput || JSON.stringify(data.data);
+                botResponse = data.data.output || data.data.response || data.data.text || data.data.message || JSON.stringify(data.data);
             }
-            // Last resort - stringify but try to make it readable
+            // If we only got back the echo (chatinput, sessionid), show error
+            else if (data.chatinput && data.sessionid && Object.keys(data).length === 2) {
+                botResponse = 'عذراً، لم أتلقَ رداً من الخادم. يرجى المحاولة مرة أخرى.';
+                console.warn('Warning: Only received echo from n8n webhook, no actual AI response');
+            }
+            // Last resort - try to find any text-like property
             else {
-                // Try to find any text-like property
-                const textProps = Object.values(data).find(val => typeof val === 'string' && val.length > 0);
-                botResponse = textProps || JSON.stringify(data);
+                const allValues = Object.values(data);
+                const textValue = allValues.find(val => typeof val === 'string' && val.length > 10 && !val.includes('sessionid'));
+                botResponse = textValue || 'عذراً، لم أتمكن من فهم الرد. يرجى المحاولة مرة أخرى.';
+                if (!textValue) {
+                    console.warn('Could not extract response from:', data);
+                }
             }
             
             console.log('Extracted Bot Response:', botResponse);
