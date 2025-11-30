@@ -1,4 +1,4 @@
-// Enhanced Chat Widget Script - Final Version
+// Enhanced Chat Widget Script - Final Fixed Version
 (function() {
     // Create and inject styles
     const styles = `
@@ -48,10 +48,10 @@
         }
 
         .n8n-chat-widget .brand-header {
-            padding: 20px 60px 20px 24px;
+            padding: 16px 60px 16px 20px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             position: relative;
             border-radius: 24px 24px 0 0;
@@ -86,12 +86,13 @@
         }
 
         .n8n-chat-widget .brand-header img {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             object-fit: cover;
             background: rgba(255, 255, 255, 0.2);
             padding: 4px;
+            flex-shrink: 0;
         }
 
         .n8n-chat-widget .brand-info {
@@ -197,6 +198,30 @@
             white-space: pre-wrap;
         }
 
+        .n8n-chat-widget .chat-message ul,
+        .n8n-chat-widget .chat-message ol {
+            margin: 8px 0;
+            padding-right: 20px;
+            padding-left: 0;
+        }
+
+        .n8n-chat-widget .chat-message li {
+            margin: 4px 0;
+            line-height: 1.6;
+        }
+
+        .n8n-chat-widget .chat-message p {
+            margin: 8px 0;
+        }
+
+        .n8n-chat-widget .chat-message p:first-child {
+            margin-top: 0;
+        }
+
+        .n8n-chat-widget .chat-message p:last-child {
+            margin-bottom: 0;
+        }
+
         .n8n-chat-widget .chat-message.user {
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
@@ -256,6 +281,7 @@
             display: flex;
             gap: 12px;
             align-items: flex-end;
+            flex-shrink: 0;
         }
 
         .n8n-chat-widget .chat-input textarea {
@@ -269,6 +295,7 @@
             font-family: inherit;
             font-size: 14px;
             max-height: 120px;
+            min-height: 44px;
             transition: all 0.2s ease;
             line-height: 1.5;
         }
@@ -356,6 +383,7 @@
             text-align: center;
             background: #f9fafb;
             border-top: 1px solid #e5e7eb;
+            flex-shrink: 0;
         }
 
         .n8n-chat-widget .chat-footer a {
@@ -384,43 +412,27 @@
         }
     `;
 
-    // Load Geist font
     const fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';
     fontLink.href = 'https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css';
     document.head.appendChild(fontLink);
 
-    // Inject styles
     const styleSheet = document.createElement('style');
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
 
-    // Default configuration
     const defaultConfig = {
-        webhook: {
-            url: '',
-            route: ''
-        },
+        webhook: { url: '', route: '' },
         branding: {
             logo: 'https://image.similarpng.com/file/similarpng/very-thumbnail/2021/09/Olive-oil-logo-design-on-transparent-background-PNG.png',
             name: 'Oliye',
             welcomeText: 'مرحبًا 👋، كيف يمكنني مساعدتك؟',
             statusText: 'متصل الآن',
-            poweredBy: {
-                text: 'Powered by TanT.AI',
-                link: 'https://tant.manus.space/'
-            }
+            poweredBy: { text: 'Powered by TanT.AI', link: 'https://tant.manus.space/' }
         },
-        style: {
-            primaryColor: '#5f720f',
-            secondaryColor: '#5f720f',
-            position: 'right',
-            backgroundColor: '#ffffff',
-            fontColor: '#333333'
-        }
+        style: { primaryColor: '#5f720f', secondaryColor: '#5f720f', position: 'right', backgroundColor: '#ffffff', fontColor: '#333333' }
     };
 
-    // Merge user config with defaults
     const config = window.ChatWidgetConfig ? 
         {
             webhook: { ...defaultConfig.webhook, ...window.ChatWidgetConfig.webhook },
@@ -428,18 +440,15 @@
             style: { ...defaultConfig.style, ...window.ChatWidgetConfig.style }
         } : defaultConfig;
 
-    // Prevent multiple initializations
     if (window.N8NChatWidgetInitialized) return;
     window.N8NChatWidgetInitialized = true;
 
     let currentSessionId = '';
     let isWaitingForResponse = false;
 
-    // Create widget container
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'n8n-chat-widget';
     
-    // Set CSS variables for colors
     widgetContainer.style.setProperty('--n8n-chat-primary-color', config.style.primaryColor);
     widgetContainer.style.setProperty('--n8n-chat-secondary-color', config.style.secondaryColor);
     widgetContainer.style.setProperty('--n8n-chat-background-color', config.style.backgroundColor);
@@ -486,7 +495,6 @@
     widgetContainer.appendChild(toggleButton);
     document.body.appendChild(widgetContainer);
 
-    const chatInterface = chatContainer.querySelector('.chat-interface');
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
     const sendBtn = chatContainer.querySelector('.chat-input button');
@@ -502,7 +510,37 @@
         
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${isUser ? 'user' : 'bot'}`;
-        messageDiv.textContent = text;
+        
+        if (!isUser) {
+            let formattedText = text.replace(/\n\*/g, '\n•').replace(/\n-/g, '\n•').trim();
+            const paragraphs = formattedText.split('\n\n');
+            
+            paragraphs.forEach((para, index) => {
+                if (para.includes('•')) {
+                    const items = para.split('\n').filter(item => item.trim());
+                    const ul = document.createElement('ul');
+                    ul.style.margin = '8px 0';
+                    ul.style.paddingRight = '20px';
+                    ul.style.paddingLeft = '0';
+                    
+                    items.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = item.replace(/^[•\-\*]\s*/, '').trim();
+                        li.style.margin = '4px 0';
+                        ul.appendChild(li);
+                    });
+                    
+                    messageDiv.appendChild(ul);
+                } else {
+                    const p = document.createElement('p');
+                    p.textContent = para;
+                    p.style.margin = index === 0 ? '0 0 8px 0' : '8px 0';
+                    messageDiv.appendChild(p);
+                }
+            });
+        } else {
+            messageDiv.textContent = text;
+        }
         
         messageWrapper.appendChild(messageDiv);
         messagesContainer.appendChild(messageWrapper);
@@ -556,17 +594,13 @@
             sessionId: currentSessionId,
             route: config.webhook.route,
             chatInput: message,
-            metadata: {
-                userId: ""
-            }
+            metadata: { userId: "" }
         };
 
-        // Add user message
         addMessage(message, true);
         textarea.value = '';
         adjustTextareaHeight();
         
-        // Show typing indicator
         isWaitingForResponse = true;
         sendBtn.disabled = true;
         showTypingIndicator();
@@ -574,9 +608,7 @@
         try {
             const response = await fetch(config.webhook.url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(messageData)
             });
             
@@ -587,16 +619,8 @@
             }
             
             const data = await response.json();
-            console.log('Full Response:', data);
-            console.log('Response Type:', typeof data);
-            if (typeof data === 'object' && data !== null) {
-                console.log('Response Keys:', Object.keys(data));
-            }
-            
-            // Extract the response - handle different response formats
             let botResponse = '';
             
-            // First, check if it's a string that might be JSON
             if (typeof data === 'string') {
                 try {
                     const parsed = JSON.parse(data);
@@ -605,41 +629,26 @@
                     botResponse = data;
                 }
             }
-            // Check for direct properties (most common n8n responses)
-            else if (data.output) {
-                botResponse = data.output;
-            } else if (data.response) {
-                botResponse = data.response;
-            } else if (data.text) {
-                botResponse = data.text;
-            } else if (data.message) {
-                botResponse = data.message;
-            }
-            // Handle array responses
+            else if (data.output) botResponse = data.output;
+            else if (data.response) botResponse = data.response;
+            else if (data.text) botResponse = data.text;
+            else if (data.message) botResponse = data.message;
             else if (Array.isArray(data) && data.length > 0) {
                 const firstItem = data[0];
                 botResponse = firstItem.output || firstItem.response || firstItem.text || firstItem.message || JSON.stringify(firstItem);
             }
-            // Handle nested objects
             else if (data.data) {
                 botResponse = data.data.output || data.data.response || data.data.text || data.data.message || JSON.stringify(data.data);
             }
-            // If we only got back the echo (chatinput, sessionid), show error
             else if (data.chatinput && data.sessionid && Object.keys(data).length === 2) {
                 botResponse = 'عذراً، لم أتلقَ رداً من الخادم. يرجى المحاولة مرة أخرى.';
-                console.warn('Warning: Only received echo from n8n webhook, no actual AI response');
             }
-            // Last resort - try to find any text-like property
             else {
                 const allValues = Object.values(data);
                 const textValue = allValues.find(val => typeof val === 'string' && val.length > 10 && !val.includes('sessionid'));
                 botResponse = textValue || 'عذراً، لم أتمكن من فهم الرد. يرجى المحاولة مرة أخرى.';
-                if (!textValue) {
-                    console.warn('Could not extract response from:', data);
-                }
             }
             
-            console.log('Extracted Bot Response:', botResponse);
             addMessage(botResponse, false);
             
         } catch (error) {
@@ -653,11 +662,11 @@
     }
 
     function adjustTextareaHeight() {
-        textarea.style.height = 'auto';
-        textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        textarea.style.height = '44px';
+        const newHeight = Math.min(Math.max(textarea.scrollHeight, 44), 120);
+        textarea.style.height = newHeight + 'px';
     }
 
-    // Event listeners
     toggleButton.addEventListener('click', () => {
         chatContainer.classList.toggle('open');
         if (chatContainer.classList.contains('open') && messagesContainer.children.length === 0) {
